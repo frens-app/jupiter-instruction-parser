@@ -25,10 +25,8 @@ export type SwapAttributes = {
   timestamp: Date;
   legCount: number;
   volumeInUSD: number;
-  inSymbol: string;
   inAmount: BigInt;
   inMint: string;
-  outSymbol: string;
   outAmount: BigInt;
   outMint: string;
   instruction: string;
@@ -39,7 +37,6 @@ export type SwapAttributes = {
   swapData: JSON;
   feeTokenPubkey?: string;
   feeOwner?: string;
-  feeSymbol?: string;
   feeAmount?: BigInt;
   feeMint?: string;
   tokenLedger?: string;
@@ -92,7 +89,6 @@ export async function extract(
   const [initialPositions, finalPositions] =
     parser.getInitialAndFinalSwapPositions(instructions);
 
-  const inSymbol = null; // We don't longer support this.
   const inMint = swapData[initialPositions[0]].inMint;
   const inSwapData = swapData.filter(
     (swap, index) => initialPositions.includes(index) && swap.inMint === inMint
@@ -101,7 +97,6 @@ export async function extract(
     return acc + BigInt(curr.inAmount);
   }, BigInt(0));
 
-  const outSymbol = null; // We don't longer support this.
   const outMint = swapData[finalPositions[0]].outMint;
   const outSwapData = swapData.filter(
     (swap, index) => finalPositions.includes(index) && swap.outMint === outMint
@@ -123,11 +118,9 @@ export async function extract(
   swap.signature = signature;
   swap.legCount = swapEvents.length;
 
-  swap.inSymbol = inSymbol;
   swap.inAmount = inAmount;
   swap.inMint = inMint;
 
-  swap.outSymbol = outSymbol;
   swap.outAmount = outAmount;
   swap.outMint = outMint;
 
