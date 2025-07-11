@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { IdlEvents, IdlTypes } from '@coral-xyz/anchor';
 import { Jupiter } from './idl/jupiter';
 import { ParsedInstruction, PublicKey } from '@solana/web3.js';

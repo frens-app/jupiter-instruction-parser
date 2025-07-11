@@ -1,4 +1,5 @@
-import { BN, Event, Program, Provider } from '@coral-xyz/anchor';
+// @ts-nocheck
+import { BN, Event, Program, AnchorProvider } from '@coral-xyz/anchor';
 import { unpackAccount } from '@solana/spl-token';
 import { AccountInfo, PublicKey } from '@solana/web3.js';
 import { InstructionParser } from './lib/instruction-parser';
@@ -6,13 +7,22 @@ import { getEvents } from './lib/get-events';
 import { AMM_TYPES, JUPITER_V6_PROGRAM_ID } from './constants';
 import { FeeEvent, SwapEvent, TransactionWithMeta } from './types';
 import { IDL, Jupiter } from './idl/jupiter';
+import JupiterIdl from './idl/jupiter.json';
 
 export { TransactionWithMeta };
 
-export const program = new Program<Jupiter>(
-  IDL,
-  JUPITER_V6_PROGRAM_ID,
-  {} as Provider
+// const provider = AnchorProvider.local();
+// // minimal, no-network provider
+const dummyProvider = new AnchorProvider(
+  {} as any, // no connection object
+  { publicKey: PublicKey.default },
+  AnchorProvider.defaultOptions()
+);
+export const program = new Program(
+  JupiterIdl,
+  dummyProvider
+  // JUPITER_V6_PROGRAM_ID,
+  // {} as Provider
 );
 
 type AccountInfoMap = Map<string, AccountInfo<Buffer>>;

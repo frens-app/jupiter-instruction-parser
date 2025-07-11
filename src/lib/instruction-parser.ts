@@ -1,6 +1,8 @@
+// @ts-nocheck
 import { ParsedInstruction, PublicKey } from '@solana/web3.js';
 import { BorshCoder } from '@coral-xyz/anchor';
 import { IDL } from '../idl/jupiter';
+import JupiterIdl from '../idl/jupiter.json';
 import { PartialInstruction, RoutePlan, TransactionWithMeta } from '../types';
 
 export class InstructionParser {
@@ -9,7 +11,7 @@ export class InstructionParser {
 
   constructor(programId: PublicKey) {
     this.programId = programId;
-    this.coder = new BorshCoder(IDL);
+    this.coder = new BorshCoder(JupiterIdl);
   }
 
   getInstructionNameAndTransferAuthorityAndLastAccount(

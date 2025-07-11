@@ -1,6 +1,6 @@
 import { Connection } from '@solana/web3.js';
-import { extract } from '../dist/index.js';
-// import { extract } from '../src/index.js';
+// import { extract } from '../dist/index.js';
+import { extract } from '../src/index.js';
 
 async function main() {
   const connection = new Connection(process.env.SOLANA_RPC_URL);
