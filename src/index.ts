@@ -51,10 +51,10 @@ const reduceEventData = <T>(events: Event[], name: string) =>
     return acc;
   }, new Array<T>());
 
-export async function extract(
+export function extract(
   signature: string,
   tx: TransactionWithMeta
-): Promise<SwapAttributes | undefined> {
+): SwapAttributes | undefined {
   const programId = JUPITER_V6_PROGRAM_ID;
   const accountInfosMap: AccountInfoMap = new Map();
 
@@ -84,7 +84,7 @@ export async function extract(
     accountsToBeFetched.push(feeEvent.account);
   }
 
-  const swapData = await parseSwapEvents(swapEvents);
+  const swapData = parseSwapEvents(swapEvents);
   const instructions = parser.getInstructions(tx);
   const [initialPositions, finalPositions] =
     parser.getInitialAndFinalSwapPositions(instructions);
@@ -141,10 +141,7 @@ export async function extract(
   swap.swapData = JSON.parse(JSON.stringify(swapData));
 
   if (feeEvent) {
-    const { mint, amount } = await extractVolume(
-      feeEvent.mint,
-      feeEvent.amount
-    );
+    const { mint, amount } = extractVolume(feeEvent.mint, feeEvent.amount);
     swap.feeTokenPubkey = feeEvent.account.toBase58();
     swap.feeOwner = extractTokenAccountOwner(
       accountInfosMap,
@@ -157,24 +154,22 @@ export async function extract(
   return swap;
 }
 
-async function parseSwapEvents(swapEvents: SwapEvent[]) {
-  const swapData = await Promise.all(
-    swapEvents.map((swapEvent) => extractSwapData(swapEvent))
-  );
+function parseSwapEvents(swapEvents: SwapEvent[]) {
+  const swapData = swapEvents.map((swapEvent) => extractSwapData(swapEvent));
 
   return swapData;
 }
 
-async function extractSwapData(swapEvent: SwapEvent) {
+function extractSwapData(swapEvent: SwapEvent) {
   const amm =
     AMM_TYPES[swapEvent.amm.toBase58()] ??
     `Unknown program ${swapEvent.amm.toBase58()}`;
 
-  const { mint: inMint, amount: inAmount } = await extractVolume(
+  const { mint: inMint, amount: inAmount } = extractVolume(
     swapEvent.inputMint,
     swapEvent.inputAmount
   );
-  const { mint: outMint, amount: outAmount } = await extractVolume(
+  const { mint: outMint, amount: outAmount } = extractVolume(
     swapEvent.outputMint,
     swapEvent.outputAmount
   );
@@ -188,7 +183,7 @@ async function extractSwapData(swapEvent: SwapEvent) {
   };
 }
 
-async function extractVolume(mint: PublicKey, amount: BN) {
+function extractVolume(mint: PublicKey, amount: BN) {
   return {
     mint: mint.toBase58(),
     amount: amount.toString(),

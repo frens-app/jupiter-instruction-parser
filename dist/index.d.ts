@@ -1491,6 +1491,6 @@ type SwapAttributes = {
     tokenLedger?: string;
     lastAccount: string;
 };
-declare function extract(signature: string, tx: TransactionWithMeta): Promise<SwapAttributes | undefined>;
+declare function extract(signature: string, tx: TransactionWithMeta): SwapAttributes | undefined;
 
 export { SwapAttributes, TransactionWithMeta, extract, program };

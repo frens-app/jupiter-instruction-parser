@@ -1,25 +1,4 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true});var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
-
-// src/index.ts
+"use strict";Object.defineProperty(exports, "__esModule", {value: true});// src/index.ts
 var _anchor = require('@coral-xyz/anchor');
 var _spltoken = require('@solana/spl-token');
 
@@ -1714,124 +1693,111 @@ var reduceEventData = (events, name) => events.reduce((acc, event) => {
   return acc;
 }, new Array());
 function extract(signature, tx) {
-  return __async(this, null, function* () {
-    var _a;
-    const programId = JUPITER_V6_PROGRAM_ID;
-    const accountInfosMap = /* @__PURE__ */ new Map();
-    const logMessages = tx.meta.logMessages;
-    if (!logMessages) {
-      throw new Error("Missing log messages...");
-    }
-    const parser = new InstructionParser(programId);
-    const events = getEvents(program, tx);
-    const swapEvents = reduceEventData(events, "SwapEvent");
-    const feeEvent = reduceEventData(events, "FeeEvent")[0];
-    if (swapEvents.length === 0) {
-      return;
-    }
-    const accountsToBeFetched = new Array();
-    swapEvents.forEach((swapEvent) => {
-      accountsToBeFetched.push(swapEvent.inputMint);
-      accountsToBeFetched.push(swapEvent.outputMint);
-    });
-    if (feeEvent) {
-      accountsToBeFetched.push(feeEvent.account);
-    }
-    const swapData = yield parseSwapEvents(swapEvents);
-    const instructions = parser.getInstructions(tx);
-    const [initialPositions, finalPositions] = parser.getInitialAndFinalSwapPositions(instructions);
-    const inMint = swapData[initialPositions[0]].inMint;
-    const inSwapData = swapData.filter(
-      (swap2, index) => initialPositions.includes(index) && swap2.inMint === inMint
-    );
-    const inAmount = inSwapData.reduce((acc, curr) => {
-      return acc + BigInt(curr.inAmount);
-    }, BigInt(0));
-    const outMint = swapData[finalPositions[0]].outMint;
-    const outSwapData = swapData.filter(
-      (swap2, index) => finalPositions.includes(index) && swap2.outMint === outMint
-    );
-    const outAmount = outSwapData.reduce((acc, curr) => {
-      return acc + BigInt(curr.outAmount);
-    }, BigInt(0));
-    const swap = {};
-    const [instructionName, transferAuthority, lastAccount] = parser.getInstructionNameAndTransferAuthorityAndLastAccount(instructions);
-    swap.transferAuthority = transferAuthority;
-    swap.lastAccount = lastAccount;
-    swap.instruction = instructionName;
-    swap.owner = tx.transaction.message.accountKeys[0].pubkey.toBase58();
-    swap.programId = programId.toBase58();
-    swap.signature = signature;
-    swap.legCount = swapEvents.length;
-    swap.inAmount = inAmount;
-    swap.inMint = inMint;
-    swap.outAmount = outAmount;
-    swap.outMint = outMint;
-    const exactOutAmount = parser.getExactOutAmount(
-      tx.transaction.message.instructions
-    );
-    if (exactOutAmount) {
-      swap.exactOutAmount = BigInt(exactOutAmount);
-    }
-    const exactInAmount = parser.getExactInAmount(
-      tx.transaction.message.instructions
-    );
-    if (exactInAmount) {
-      swap.exactInAmount = BigInt(exactInAmount);
-    }
-    swap.swapData = JSON.parse(JSON.stringify(swapData));
-    if (feeEvent) {
-      const { mint, amount } = yield extractVolume(
-        feeEvent.mint,
-        feeEvent.amount
-      );
-      swap.feeTokenPubkey = feeEvent.account.toBase58();
-      swap.feeOwner = (_a = extractTokenAccountOwner(
-        accountInfosMap,
-        feeEvent.account
-      )) == null ? void 0 : _a.toBase58();
-      swap.feeAmount = BigInt(amount);
-      swap.feeMint = mint;
-    }
-    return swap;
+  var _a;
+  const programId = JUPITER_V6_PROGRAM_ID;
+  const accountInfosMap = /* @__PURE__ */ new Map();
+  const logMessages = tx.meta.logMessages;
+  if (!logMessages) {
+    throw new Error("Missing log messages...");
+  }
+  const parser = new InstructionParser(programId);
+  const events = getEvents(program, tx);
+  const swapEvents = reduceEventData(events, "SwapEvent");
+  const feeEvent = reduceEventData(events, "FeeEvent")[0];
+  if (swapEvents.length === 0) {
+    return;
+  }
+  const accountsToBeFetched = new Array();
+  swapEvents.forEach((swapEvent) => {
+    accountsToBeFetched.push(swapEvent.inputMint);
+    accountsToBeFetched.push(swapEvent.outputMint);
   });
+  if (feeEvent) {
+    accountsToBeFetched.push(feeEvent.account);
+  }
+  const swapData = parseSwapEvents(swapEvents);
+  const instructions = parser.getInstructions(tx);
+  const [initialPositions, finalPositions] = parser.getInitialAndFinalSwapPositions(instructions);
+  const inMint = swapData[initialPositions[0]].inMint;
+  const inSwapData = swapData.filter(
+    (swap2, index) => initialPositions.includes(index) && swap2.inMint === inMint
+  );
+  const inAmount = inSwapData.reduce((acc, curr) => {
+    return acc + BigInt(curr.inAmount);
+  }, BigInt(0));
+  const outMint = swapData[finalPositions[0]].outMint;
+  const outSwapData = swapData.filter(
+    (swap2, index) => finalPositions.includes(index) && swap2.outMint === outMint
+  );
+  const outAmount = outSwapData.reduce((acc, curr) => {
+    return acc + BigInt(curr.outAmount);
+  }, BigInt(0));
+  const swap = {};
+  const [instructionName, transferAuthority, lastAccount] = parser.getInstructionNameAndTransferAuthorityAndLastAccount(instructions);
+  swap.transferAuthority = transferAuthority;
+  swap.lastAccount = lastAccount;
+  swap.instruction = instructionName;
+  swap.owner = tx.transaction.message.accountKeys[0].pubkey.toBase58();
+  swap.programId = programId.toBase58();
+  swap.signature = signature;
+  swap.legCount = swapEvents.length;
+  swap.inAmount = inAmount;
+  swap.inMint = inMint;
+  swap.outAmount = outAmount;
+  swap.outMint = outMint;
+  const exactOutAmount = parser.getExactOutAmount(
+    tx.transaction.message.instructions
+  );
+  if (exactOutAmount) {
+    swap.exactOutAmount = BigInt(exactOutAmount);
+  }
+  const exactInAmount = parser.getExactInAmount(
+    tx.transaction.message.instructions
+  );
+  if (exactInAmount) {
+    swap.exactInAmount = BigInt(exactInAmount);
+  }
+  swap.swapData = JSON.parse(JSON.stringify(swapData));
+  if (feeEvent) {
+    const { mint, amount } = extractVolume(feeEvent.mint, feeEvent.amount);
+    swap.feeTokenPubkey = feeEvent.account.toBase58();
+    swap.feeOwner = (_a = extractTokenAccountOwner(
+      accountInfosMap,
+      feeEvent.account
+    )) == null ? void 0 : _a.toBase58();
+    swap.feeAmount = BigInt(amount);
+    swap.feeMint = mint;
+  }
+  return swap;
 }
 function parseSwapEvents(swapEvents) {
-  return __async(this, null, function* () {
-    const swapData = yield Promise.all(
-      swapEvents.map((swapEvent) => extractSwapData(swapEvent))
-    );
-    return swapData;
-  });
+  const swapData = swapEvents.map((swapEvent) => extractSwapData(swapEvent));
+  return swapData;
 }
 function extractSwapData(swapEvent) {
-  return __async(this, null, function* () {
-    var _a;
-    const amm = (_a = AMM_TYPES[swapEvent.amm.toBase58()]) != null ? _a : `Unknown program ${swapEvent.amm.toBase58()}`;
-    const { mint: inMint, amount: inAmount } = yield extractVolume(
-      swapEvent.inputMint,
-      swapEvent.inputAmount
-    );
-    const { mint: outMint, amount: outAmount } = yield extractVolume(
-      swapEvent.outputMint,
-      swapEvent.outputAmount
-    );
-    return {
-      amm,
-      inMint,
-      inAmount,
-      outMint,
-      outAmount
-    };
-  });
+  var _a;
+  const amm = (_a = AMM_TYPES[swapEvent.amm.toBase58()]) != null ? _a : `Unknown program ${swapEvent.amm.toBase58()}`;
+  const { mint: inMint, amount: inAmount } = extractVolume(
+    swapEvent.inputMint,
+    swapEvent.inputAmount
+  );
+  const { mint: outMint, amount: outAmount } = extractVolume(
+    swapEvent.outputMint,
+    swapEvent.outputAmount
+  );
+  return {
+    amm,
+    inMint,
+    inAmount,
+    outMint,
+    outAmount
+  };
 }
 function extractVolume(mint, amount) {
-  return __async(this, null, function* () {
-    return {
-      mint: mint.toBase58(),
-      amount: amount.toString()
-    };
-  });
+  return {
+    mint: mint.toBase58(),
+    amount: amount.toString()
+  };
 }
 function extractTokenAccountOwner(accountInfosMap, account) {
   const accountData = accountInfosMap.get(account.toBase58());

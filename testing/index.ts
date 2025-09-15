@@ -11,7 +11,7 @@ async function main() {
     }
   );
   console.log(transaction);
-  const extracted = await extract(
+  const extracted = extract(
     '3tD3xPDEFcRhfMKp1VJsFzFZGxQTbjpHgtPrzyL1h9dS1spb3YfZbx5TyaW617RQXSsrS3PRuKBvR5MMQn6T3N6f',
     transaction
   );
