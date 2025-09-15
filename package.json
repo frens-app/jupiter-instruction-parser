@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "start": "ts-node src/cli.ts",
-    "build": "tsup"
+    "build": "tsup",
+    "prepare": "yarn build"
   },
   "author": "",
   "license": "ISC",
